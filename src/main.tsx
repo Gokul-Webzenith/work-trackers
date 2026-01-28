@@ -12,6 +12,7 @@ import './styles.css'
 const router = createRouter({
   routeTree,
   context: {},
+    basepath: "/work-trackers",
   defaultPreload: 'intent',
   scrollRestoration: true,
   defaultStructuralSharing: true,
