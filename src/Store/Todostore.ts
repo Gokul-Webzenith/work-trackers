@@ -48,9 +48,9 @@ export const useTodoStore = create<TodoStore>()(
         })),
     }),
     {
-      name: "todo-ui-storage", // 🔑 localStorage key
+      name: "todo-ui-storage", 
       partialize: (state) => ({
-        todos: state.todos, // only persist todos
+        todos: state.todos, 
       }),
     }
   )

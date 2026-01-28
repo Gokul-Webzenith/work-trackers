@@ -54,7 +54,7 @@ const {input,setInput,clearInput}=useInputStore();
       </button>
     </div>
 
-    {/* Todo List */}
+   
     <div className="space-y-4">
       {todos.map((t) => (
         <div
