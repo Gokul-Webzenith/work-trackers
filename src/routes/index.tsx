@@ -12,7 +12,7 @@ function App() {
    <div className="flex flex-col justify-center items-center gap-10 h-screen">
 
 
-    <h1>THIS IS MY TODOLIST APPLICATION where you can recordn </h1>
+    <h1>Work tracker application of tracking all the works </h1>
 
   <Link to ="/todo"><Button>Work</Button></Link>
  <Link to ="/Dashboard" ><Button>Dashboard</Button></Link>

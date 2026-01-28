@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export const todoSchema = z.object({
   id: z.number(),
-  text: z.string().trim().min(2),
+  text: z.string().trim().min(1),
   done: z.boolean(),
 
 }
