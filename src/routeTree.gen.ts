@@ -9,86 +9,116 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TodoRouteImport } from './routes/todo'
-import { Route as DashboardRouteImport } from './routes/Dashboard'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardRouteImport } from './routes/_Dashboard'
+import { Route as DashboardIndexRouteImport } from './routes/_Dashboard.index'
+import { Route as DashboardWorkRouteImport } from './routes/_Dashboard.work'
+import { Route as DashboardDashRouteImport } from './routes/_Dashboard.dash'
 
-const TodoRoute = TodoRouteImport.update({
-  id: '/todo',
-  path: '/todo',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DashboardRoute = DashboardRouteImport.update({
-  id: '/Dashboard',
-  path: '/Dashboard',
+  id: '/_Dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardWorkRoute = DashboardWorkRouteImport.update({
+  id: '/work',
+  path: '/work',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardDashRoute = DashboardDashRouteImport.update({
+  id: '/dash',
+  path: '/dash',
+  getParentRoute: () => DashboardRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/Dashboard': typeof DashboardRoute
-  '/todo': typeof TodoRoute
+  '/': typeof DashboardIndexRoute
+  '/dash': typeof DashboardDashRoute
+  '/work': typeof DashboardWorkRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/Dashboard': typeof DashboardRoute
-  '/todo': typeof TodoRoute
+  '/dash': typeof DashboardDashRoute
+  '/work': typeof DashboardWorkRoute
+  '/': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/Dashboard': typeof DashboardRoute
-  '/todo': typeof TodoRoute
+  '/_Dashboard': typeof DashboardRouteWithChildren
+  '/_Dashboard/dash': typeof DashboardDashRoute
+  '/_Dashboard/work': typeof DashboardWorkRoute
+  '/_Dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/Dashboard' | '/todo'
+  fullPaths: '/' | '/dash' | '/work'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/Dashboard' | '/todo'
-  id: '__root__' | '/' | '/Dashboard' | '/todo'
+  to: '/dash' | '/work' | '/'
+  id:
+    | '__root__'
+    | '/_Dashboard'
+    | '/_Dashboard/dash'
+    | '/_Dashboard/work'
+    | '/_Dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRoute
-  TodoRoute: typeof TodoRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/todo': {
-      id: '/todo'
-      path: '/todo'
-      fullPath: '/todo'
-      preLoaderRoute: typeof TodoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/Dashboard': {
-      id: '/Dashboard'
-      path: '/Dashboard'
-      fullPath: '/Dashboard'
+    '/_Dashboard': {
+      id: '/_Dashboard'
+      path: ''
+      fullPath: '/'
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/_Dashboard/': {
+      id: '/_Dashboard/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_Dashboard/work': {
+      id: '/_Dashboard/work'
+      path: '/work'
+      fullPath: '/work'
+      preLoaderRoute: typeof DashboardWorkRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_Dashboard/dash': {
+      id: '/_Dashboard/dash'
+      path: '/dash'
+      fullPath: '/dash'
+      preLoaderRoute: typeof DashboardDashRouteImport
+      parentRoute: typeof DashboardRoute
     }
   }
 }
 
+interface DashboardRouteChildren {
+  DashboardDashRoute: typeof DashboardDashRoute
+  DashboardWorkRoute: typeof DashboardWorkRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardDashRoute: DashboardDashRoute,
+  DashboardWorkRoute: DashboardWorkRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRoute,
-  TodoRoute: TodoRoute,
+  DashboardRoute: DashboardRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

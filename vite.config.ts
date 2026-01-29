@@ -6,8 +6,7 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
-  base: "/work-trackers/",   // ⭐ REQUIRED: repo name here
-  plugins: [
+   plugins: [
     devtools(),
     tanstackRouter({
       target: 'react',
