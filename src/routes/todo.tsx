@@ -1,93 +1,186 @@
-import { useTodoStore } from "@/Store/Todostore";
-import { createFileRoute } from '@tanstack/react-router'
-import { useInputStore } from "@/Store/Input";
-import { Link } from "@tanstack/react-router";
-import { Trash2 } from "lucide-react";
+import { createFileRoute, } from '@tanstack/react-router'
+import { useForm } from "react-hook-form";
+import { Button } from '@/components/ui/button';
+import { useTodoStore } from "@/Store/Todostore"; 
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+
+
+
+type FormData = {
+  status: "progress" | "done";
+  text: string;
+  date: string;
+};
 
 export const Route = createFileRoute('/todo')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
- const { todos,add,del,toggle} = useTodoStore();
-const {input,setInput,clearInput}=useInputStore();
-    return (
 
-    
-    <>
-    <div className="bg-black h-12">
-      <nav className='flex justify-end'>
-          <ul className='mt-4 text-white flex justify-start gap-5'>
-         <li> <Link to ="/todo">work</Link></li>
-         <li><Link to ="/Dashboard">Dashboard</Link>   </li>  
-         <li><Link to ="/">Home</Link></li>
-          </ul>
-        </nav>
-   </div>
+const {items,updateStatus,addItem}=useTodoStore();
 
-  
+const progressItems = items.filter(item => item.status === "progress");
+const doneItems = items.filter(item => item.status === "done");
 
-<div className="min-h-screen bg-gray-100 flex justify-center items-center">
-  <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-10">
+  const { register, handleSubmit, reset } = useForm<FormData>();
 
-    
-    <h1 className="text-3xl font-bold text-gray-800 text-center mb-8">
-      Enter your work for today
-    </h1>
 
-    <div className="flex gap-3 mb-8">
-      <input
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        placeholder="Enter any task"
-        className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fuchsia-500"
-      />
+const onDragStart = (e: React.DragEvent, id: number) => {
+  e.dataTransfer.setData("taskId", String(id));
+};
 
-      <button
-        onClick={() => {
-          add(input);
-          clearInput();
-        }}
-        className="px-6 py-3 bg-fuchsia-600 text-white rounded-lg hover:bg-fuchsia-700 transition font-semibold"
-      >
-        Add
-      </button>
-    </div>
+const onDrop = (e: React.DragEvent, status: "progress" | "done") => {
+  const id = Number(e.dataTransfer.getData("taskId"));
+  updateStatus(id, status);
+};
+
+const allowDrop = (e: React.DragEvent) => {
+  e.preventDefault(); 
+};
+
+ const onSubmit = (data: FormData) => {
+    const res = addItem(data);   
+
+    if (!res.success) {
+      console.error(res.error);
+      return;
+    }
+
+    reset();
+  };
+
+ return(
+  <>
+  <div className='flex justify-end'>
+<Sheet >
+  <SheetTrigger asChild>
+    <Button>Open Form</Button>
+  </SheetTrigger>
+
+  <SheetContent side="right" className="w-[400px]">
+    <SheetHeader>
+      <SheetTitle>Add Entry</SheetTitle>
+    </SheetHeader>
 
    
-    <div className="space-y-4">
-      {todos.map((t) => (
-        <div
-          key={t.id}
-          className="flex items-center justify-between gap-4 bg-gray-50 p-4 rounded-xl shadow-sm hover:bg-gray-900 hover:text-white transition"
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-6">
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Status</label>
+        <select
+          {...register("status")}
+          required
+          className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black"
         >
-          <input
-          placeholder="enter your work"
-            type="checkbox"
-            checked={t.done}
-            onChange={() => toggle(t.id)}
-            className="w-5 h-5 cursor-pointer accent-fuchsia-600"
-          />
+          <option value="">Select status</option>
+          <option value="progress">Progress</option>
+          <option value="done">Done</option>
+        </select>
+      </div>
 
-          <h1 className={`flex-1 text-lg font-medium ${t.done ? "line-through opacity-60" : ""}`}>
-            {t.text}
-          </h1>
+      <div>
+        <label className="block text-sm font-medium mb-1">Text</label>
+        <input
+          type="text"
+          {...register("text", { required: true })}
+          placeholder="Enter text"
+          className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+        />
+      </div>
 
-          <button
-            onClick={() => del(t.id)}
-            aria-label="delete the task"
-            className="px-3 py-1 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-          >
-            <Trash2 />
-          </button>
+      <div>
+        <label className="block text-sm font-medium mb-1">Date</label>
+        <input
+          type="date"
+          {...register("date", { required: true })}
+          className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+        />
+      </div>
+
+      <Button type="submit" className="w-full">
+        Submit
+      </Button>
+
+    </form>
+  </SheetContent>
+</Sheet>
+
+    </div>
+
+       
+        
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
+
+  <div
+    onDragOver={allowDrop}
+    onDrop={(e) => onDrop(e, "progress")}
+    className="bg-white p-6 rounded-lg border min-h-[300px]"
+  >
+    <h3 className="text-lg font-medium mb-4 text-yellow-700">In Progress</h3>
+
+   
+
+    <div className="space-y-2">
+      {progressItems.map(item => (
+        <div
+          key={item.id}
+          draggable
+          onDragStart={(e) => onDragStart(e, item.id)}
+          className="border rounded-md p-3 text-sm bg-white cursor-move"
+        >
+          <div className="font-medium">{item.text}</div>
+          <div className="text-xs text-gray-600">
+            ID: {item.id} 
+            Date: {item.date}
+          </div>
         </div>
       ))}
     </div>
-
   </div>
+
+
+  <div
+    onDragOver={allowDrop}
+    onDrop={(e) => onDrop(e, "done")}
+    className="bg-white p-6 rounded-lg border min-h-[300px]"
+  >
+    <h3 className="text-lg font-medium mb-4 text-green-700">Done</h3>
+
+
+    <div className="space-y-2">
+      {doneItems.map(item => (
+        <div
+          key={item.id}
+          draggable
+          onDragStart={(e) => onDragStart(e, item.id)}
+          className="border rounded-md p-3 text-sm bg-white cursor-move"
+        >
+          <div className="font-medium">{item.text}</div>
+          <div className="text-xs text-gray-600">
+            ID: {item.id} 
+            Date: {item.date}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+
 </div>
 
-    </>
-    )
-   
+
+
+
+  
+
+
+  </>
+ )
 }

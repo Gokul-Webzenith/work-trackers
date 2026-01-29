@@ -1,56 +1,55 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { todoSchema, type Todo } from "./../schemas/check.schema";
+import { todoSchema, type TodoItem } from "@/schemas/todo.schema";
 
 type TodoStore = {
-  todos: Todo[];
-  add: (value: string) => void;
-  del: (id: number) => void;
-  toggle: (id: number) => void;
+  items: TodoItem[];
+  addItem: (data: Omit<TodoItem, "id">) => { success: boolean; error?: string };
+  clearAll: () => void;
+  updateStatus: (id: number, status: "progress" | "done") => void;
+
 };
 
 export const useTodoStore = create<TodoStore>()(
   persist(
     (set) => ({
-      todos: [],
+      items: [],
 
-      add: (value) =>
-        set((state) => {
-          const todo = {
-            id: state.todos.length + 1,
-            text: value,
-            done: false,
-          };
+      addItem: (data) => {
+        const fullData: TodoItem = {
+          ...data,
+          id: Date.now(),
+        };
 
-          const result = todoSchema.safeParse(todo);
+        const result = todoSchema.safeParse(fullData);
 
-          if (!result.success) {
-            console.log(result.error.format());
-            alert("wrong inputs");
-            return state;
-          }
-
+        if (!result.success) {
           return {
-            todos: [...state.todos, result.data],
+            success: false,
+            error: result.error.issues[0].message,
           };
-        }),
+        }
 
-      del: (id) =>
         set((state) => ({
-          todos: state.todos.filter((t) => t.id !== id),
-        })),
+          items: [...state.items, result.data],
+        }));
 
-      toggle: (id) =>
-        set((state) => ({
-          todos: state.todos.map((t) =>
-            t.id === id ? { ...t, done: !t.done } : t
-          ),
-        })),
+        return { success: true };
+      },
+      updateStatus: (id, status) =>
+  set((state) => ({
+    items: state.items.map(item =>
+      item.id === id ? { ...item, status } : item
+    ),
+  })),
+
+
+      clearAll: () => set({ items: [] }),
     }),
     {
-      name: "todo-ui-storage", 
+      name: "todo-storage",
       partialize: (state) => ({
-        todos: state.todos, 
+        items: state.items,  
       }),
     }
   )
