@@ -17,7 +17,7 @@ type TodoStore = {
 
 export const useTodoStore = create<TodoStore>()(
   persist(
-    (set,get ) => ({
+    (set,_get ) => ({
       items: [],
 
       addItem: (data) => {

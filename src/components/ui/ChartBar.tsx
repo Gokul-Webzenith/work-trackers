@@ -36,7 +36,6 @@ export function ChartBar() {
     staleTime: Infinity,
   });
 
-  const now = new Date();
 
   const progressCount = items.filter(i => i.status === "progress").length;
   const doneCount = items.filter(i => i.status === "done").length;

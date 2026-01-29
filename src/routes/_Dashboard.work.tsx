@@ -38,25 +38,30 @@ function RouteComponent() {
     staleTime: Infinity, 
   });
 
-  const addTodoMutation = useMutation({
-    mutationFn: (data: FormData) => {
-      const res = useTodoStore.getState().addItem(data);
-      if (!res.success) throw new Error(res.error);
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: TODOS_KEY }); 
-    },
-  });
+ const addTodoMutation = useMutation({
+  mutationFn: async (data: FormData) => {
+    const res = useTodoStore.getState().addItem(data);
+    if (!res.success) throw new Error(res.error);
+
+    return Promise.resolve(res);   // ✅ must return Promise
+  },
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: TODOS_KEY }); 
+  },
+});
+
 
   const updateStatusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: number; status: "progress" | "done" }) => {
-      useTodoStore.getState().updateStatus(id, status);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: TODOS_KEY });
-    },
-  });
+  mutationFn: async ({ id, status }: { id: number; status: "progress" | "done" }) => {
+    useTodoStore.getState().updateStatus(id, status);
+
+    return Promise.resolve({ success: true });  // ✅ return Promise
+  },
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: TODOS_KEY });
+  },
+});
+
  
 
 
