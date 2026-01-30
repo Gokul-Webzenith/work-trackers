@@ -6,7 +6,7 @@
     "predeploy": "pnpm build",
     "deploy": "gh-pages -d dist",
     "dev": "vite --port 3000",
-    "build": "vite build && tsc",
+    "build": "vite build ",
     "preview": "vite preview",
     "test": "vitest run"
   },
