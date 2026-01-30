@@ -115,3 +115,5 @@ if (todos.length === prevLength) {
 
   return c.json({ success: true, message: 'Todo deleted' })
  })
+ 
+ export default app.fetch
