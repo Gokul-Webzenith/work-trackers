@@ -1,38 +1,30 @@
-
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 
-
-
 type Todo = {
-  id: Number
+  id: number   
   text: string
   done: boolean
-  date: string      
-  endDate: string   
+  date: string
+  endDate: string
 }
 
-let ID_COUNTER = 1;
-
-
-
+let ID_COUNTER = 1
 
 let todos: Todo[] = [
   {
-   id: ID_COUNTER++,
+    id: ID_COUNTER++,
     text: "hlo",
     done: false,
-    date: "2-2-2026",
-    endDate: "4-2-2026"
+    date: "2026-02-02",  
+    endDate: "2026-02-04" 
   }
 ]
 
 const app = new Hono()
 
-
 app.use('*', logger())
-
 
 app.use('*', cors({
   origin: '*',
@@ -40,21 +32,19 @@ app.use('*', cors({
   allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
 }))
 
-
 app.get('/', (c) => {
   return c.json(todos)
 })
-
 
 app.post('/todos', async (c) => {
   const body = await c.req.json()
 
   const newTodo: Todo = {
-    id: ID_COUNTER++ ,
+    id: ID_COUNTER++,
     text: body.text,
-    done: false,   
-    date: body.date,           
-    endDate: body.endDate,     
+    done: false,
+    date: body.date,
+    endDate: body.endDate,
   }
 
   todos.push(newTodo)
@@ -62,30 +52,26 @@ app.post('/todos', async (c) => {
   return c.json({ success: true, data: newTodo }, 201)
 })
 
-
 app.put('/todos/:id', async (c) => {
   const id = c.req.param('id')
   const body = await c.req.json()
-  
-const index = todos.findIndex(t => String(t.id) === String(id))
 
+  const index = todos.findIndex(t => String(t.id) === String(id))
 
   if (index === -1) {
     return c.json({ success: false, message: 'Todo not found' }, 404)
   }
 
- 
   todos[index] = {
-    id: todos[index].id,  
+    id: todos[index].id,
     text: body.text,
     done: body.done,
-    date: body.date,      
+    date: body.date,
     endDate: body.endDate,
   }
 
   return c.json({ success: true, data: todos[index] })
 })
-
 
 app.patch('/todos/:id', async (c) => {
   const id = c.req.param('id')
@@ -105,15 +91,15 @@ app.patch('/todos/:id', async (c) => {
 })
 
 app.delete('/todos/:id', (c) => {
-const id = c.req.param('id')
-const prevLength = todos.length
-todos = todos.filter(t =>String(t.id) !== String(id))
+  const id = c.req.param('id')
+  const prevLength = todos.length
+  todos = todos.filter(t => String(t.id) !== String(id))
 
-if (todos.length === prevLength) {
-  return c.json({ success: false, message: 'Todo not found' }, 404)
- }
+  if (todos.length === prevLength) {
+    return c.json({ success: false, message: 'Todo not found' }, 404)
+  }
 
   return c.json({ success: true, message: 'Todo deleted' })
- })
- 
- export default app.fetch
+})
+
+export default app.fetch
