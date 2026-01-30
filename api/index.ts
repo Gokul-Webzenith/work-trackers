@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
-
+import {handle} from 'hono/vercel'
 type Todo = {
   id: number   
   text: string
@@ -102,4 +102,4 @@ app.delete('/todos/:id', (c) => {
   return c.json({ success: true, message: 'Todo deleted' })
 })
 
-export default app.fetch
+export default handle(app)
