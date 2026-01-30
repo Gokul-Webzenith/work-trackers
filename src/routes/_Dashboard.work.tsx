@@ -31,13 +31,13 @@ type Todo = {
 
 const api = {
   getTodos: async (): Promise<Todo[]> => {
-    const res = await fetch(`https://work-trackers.vercel.app/api/`);
+    const res = await fetch(`/api/`);
     if (!res.ok) throw new Error("Failed to fetch todos");
     return res.json();
   },
 
   addTodo: async (data: TodoForm) => {
-    const res = await fetch(`https://work-trackers.vercel.app/api/todos`, {
+    const res = await fetch(`/api/todos`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -47,7 +47,7 @@ const api = {
   },
 
   updateTodo: async (id: number, data: Todo) => {
-    const res = await fetch(`hhttps://work-trackers.vercel.app/api/todos/${id}`, {
+    const res = await fetch(`/api/todos/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -57,7 +57,7 @@ const api = {
   },
 
   patchTodo: async (id: number, data: Partial<Todo>) => {
-    const res = await fetch(`hhttps://work-trackers.vercel.app/api/todos/${id}`, {
+    const res = await fetch(`/api/todos/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -67,7 +67,7 @@ const api = {
   },
 
   deleteTodo: async (id: number) => {
-    const res = await fetch(`https://work-trackers.vercel.app/api/todos/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/todos/${id}`, { method: "DELETE" });
     if (!res.ok) throw new Error("Failed to delete todo");
     return res.json();
   },
