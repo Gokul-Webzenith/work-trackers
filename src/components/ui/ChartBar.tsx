@@ -15,9 +15,23 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart"
 import { useQuery } from "@tanstack/react-query"
-import { useTodoStore } from "@/Store/Todostore"
 
+type Todo = {
+  id: number;
+  text: string;
+  done: boolean;
+  date: string;
+  endDate: string;
+};
 
+// ---------------- API ----------------
+const API_URL = "http://localhost:4000";
+
+const getTodos = async (): Promise<Todo[]> => {
+  const res = await fetch(`${API_URL}/`);
+  if (!res.ok) throw new Error("Failed to fetch todos");
+  return res.json();
+};
 
 const smallChartConfig = {
   value: { label: "Tasks", color: "var(--chart-1)" },
@@ -29,16 +43,13 @@ const bigChartConfig = {
 
 export function ChartBar() {
 
-
   const { data: items = [] } = useQuery({
     queryKey: ["todos"],
-    queryFn: () => useTodoStore.getState().items,
-    staleTime: Infinity,
+    queryFn: getTodos,
   });
 
-
-  const progressCount = items.filter(i => i.status === "progress").length;
-  const doneCount = items.filter(i => i.status === "done").length;
+  const progressCount = items.filter(i => !i.done).length;
+  const doneCount = items.filter(i => i.done).length;
 
   const statusData = [
     { label: "Progress", value: progressCount },
@@ -63,30 +74,27 @@ export function ChartBar() {
     };
   });
 
+  const nowT = Date.now();
+  const threeDays = nowT + 3 * 24 * 60 * 60 * 1000;
 
   const upcoming = items.filter(i => {
     const end = new Date(i.endDate).getTime();
-    const nowT = Date.now();
-    const threeDays = nowT + 3 * 24 * 60 * 60 * 1000;
-    return end > nowT && end <= threeDays && i.status !== "done";
+    return end > nowT && end <= threeDays && !i.done;
   }).length;
 
-  const active = items.filter(i => i.status === "progress").length;
+  const active = items.filter(i => !i.done).length;
 
   const upcomingActiveData = [
     { label: "Upcoming", value: upcoming },
     { label: "Active", value: active },
   ];
 
-
   const weekMap: Record<string, number> = {};
 
   items.forEach(task => {
     const d = new Date(task.date);
-
     const month = d.toLocaleString("default", { month: "short" });
     const firstDay = new Date(d.getFullYear(), d.getMonth(), 1);
-
     const weekNumber = Math.ceil((d.getDate() + firstDay.getDay()) / 7);
     const key = `${month} Week ${weekNumber}`;
 
@@ -98,11 +106,10 @@ export function ChartBar() {
     value,
   }));
 
-
   return (
     <div className="w-full space-y-6">
 
-     
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         <SmallGraph
@@ -128,7 +135,7 @@ export function ChartBar() {
 
       </div>
 
-    
+      
       <div className="flex justify-center">
         <Card className="w-full md:w-[70%]">
           <CardHeader>
